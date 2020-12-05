@@ -36,22 +36,22 @@ static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor c
 	NVGcolor colorShadow = nvgRGBAf(0, 0, 0, 0.44);
 	NVGcolor colorOutline = nvgLerpRGBA(color, nvgRGBf(0.0, 0.0, 0.0), 0.4);
 
-	
+
 	// Cable
 	if (opacity > 0.0) {
 		nvgSave(vg);
 		// This power scaling looks more linear than actual linear scaling
 		nvgGlobalAlpha(vg, std::pow(opacity, 1.5));
-		
-		auto factor = pos1.y < pos2.y && std::abs(pos1.x - pos2.x) < 350 ? -0.22 : 1; 
+
+		auto factor = pos1.y < pos2.y && std::abs(pos1.x - pos2.x) < 350 ? -0.22 : 1;
 		auto rtension = tension;
 		auto rthickness = thickness *= 0.7;
 
 		float dist = pos1.minus(pos2).norm() * 0.2;
-		float disty = std::abs(pos1.y - pos2.y); 
+		float disty = std::abs(pos1.y - pos2.y);
 		math::Vec slump;
 		slump.y = randomness * factor * (1.0 - rtension) * (150.0 + 1.0 * dist);
-		math::Vec pos3 = pos1.plus(pos2).div(2).plus(slump);
+		math::Vec pos3 = pos1.plus(pos2).div(2).plus(slump).minus(math::Vec(randomness*18,randomness*15));
 
 		// Adjust pos1 and pos2 to not draw over the plug
 		pos1 = pos1.plus(pos3.minus(pos1).normalize().mult(8));
@@ -89,7 +89,7 @@ static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor c
 CableWidget::CableWidget() {
 	cable = new engine::Cable;
 
-	randomness = random::uniform()/4;
+	randomness = 1. + (random::uniform() * 0.4 - 0.2);
 
 	color = color::BLACK_TRANSPARENT;
 	if (!settings::cableColors.empty()) {
@@ -241,13 +241,15 @@ void CableWidget::draw(const DrawArgs& args) {
 	float opacity = settings::cableOpacity;
 	float tension = settings::cableTension;
 	float thickness = 5;
+    bool poly = false;
 
 	if (isComplete()) {
 		engine::Output* output = &cable->outputModule->outputs[cable->outputId];
 		// Draw opaque if mouse is hovering over a connected port
 		if (output->channels > 1) {
 			// Increase thickness if output port is polyphonic
-			thickness = 9;
+			poly = true;
+			thickness = 2.9;
 		}
 
 		if (outputPort->hovered || inputPort->hovered) {
@@ -266,6 +268,25 @@ void CableWidget::draw(const DrawArgs& args) {
 	math::Vec outputPos = getOutputPos();
 	math::Vec inputPos = getInputPos();
 	drawCable(args.vg, outputPos, inputPos, color, thickness, tension, opacity, randomness);
+
+	if (poly) {
+	   /* auto v1 = math::Vec(1,1.3);
+        auto v2 = math::Vec(2.2,2);
+        auto v3 = math::Vec(-1.8,-1);
+        auto v4 = math::Vec(-2,-2.3);
+
+        drawCable(args.vg, outputPos.plus(v1), inputPos.plus(v1), color, thickness, tension*0.992, opacity, randomness);
+        drawCable(args.vg, outputPos.plus(v2), inputPos.plus(v2), color, thickness, tension*0.994, opacity, randomness);
+        drawCable(args.vg, outputPos.plus(v3), inputPos.plus(v3), color, thickness, tension*1.0012, opacity, randomness);
+        drawCable(args.vg, outputPos.plus(v4), inputPos.plus(v4), color, thickness, tension*1.0002, opacity, randomness);*/
+
+
+        drawCable(args.vg, outputPos, inputPos, color, thickness, tension*0.912, opacity, randomness);
+        drawCable(args.vg, outputPos, inputPos, color, thickness, tension*0.924, opacity, randomness);
+        drawCable(args.vg, outputPos, inputPos, color, thickness, tension*1.012, opacity, randomness);
+        drawCable(args.vg, outputPos, inputPos, color, thickness, tension*1.002, opacity, randomness);
+	}
+
 }
 
 void CableWidget::drawPlugs(const DrawArgs& args) {
