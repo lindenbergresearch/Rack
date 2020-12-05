@@ -133,8 +133,8 @@ ifdef ARCH_MAC
 	# Clean up and sign bundle
 	xattr -cr dist/Rack.app
 	# This will only work if you have the private key to my certificate
-	codesign --verbose --sign "Developer ID Application: Andrew Belt (VRF26934X5)" --options runtime --entitlements Entitlements.plist --deep dist/Rack.app
-	codesign --verify --deep --strict --verbose=2 dist/Rack.app
+	#codesign --verbose --sign "Developer ID Application: Andrew Belt (VRF26934X5)" --options runtime --entitlements Entitlements.plist --deep dist/Rack.app
+	#codesign --verify --deep --strict --verbose=2 dist/Rack.app
 	# Make ZIP
 	cd dist && zip -q -9 -r $(DIST_NAME).zip Rack.app
 endif
