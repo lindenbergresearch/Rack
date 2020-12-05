@@ -132,7 +132,7 @@ struct BrowserOverlay : widget::OpaqueWidget {
 };
 
 
-static const float MODEL_BOX_ZOOM = 0.5f;
+static const float MODEL_BOX_ZOOM = 0.5;
 
 
 struct ModelBox : widget::OpaqueWidget {
@@ -165,6 +165,7 @@ struct ModelBox : widget::OpaqueWidget {
 			// Small details draw poorly at low DPI, so oversample when drawing to the framebuffer
 			previewFb->oversample = 2.0;
 		}
+
 		previewWidget->addChild(previewFb);
 
 		widget::ZoomWidget* zoomWidget = new widget::ZoomWidget;
