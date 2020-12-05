@@ -9,7 +9,7 @@ IconButton::IconButton() {
 	box.size.x = BND_TOOL_WIDTH;
 
 	fw = new widget::FramebufferWidget;
-	fw->oversample = 2;
+	fw->oversample = 1;
 	addChild(fw);
 
 	sw = new widget::SvgWidget;
