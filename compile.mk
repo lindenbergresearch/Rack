@@ -12,7 +12,7 @@ FLAGS += -MMD -MP
 # Debugger symbols. These are removed with `strip`.
 FLAGS += -g
 # Optimization
-FLAGS += -O3 -march=nocona -funsafe-math-optimizations
+FLAGS += -O3 -march=armv8 -funsafe-math-optimizations
 # Warnings
 FLAGS += -Wall -Wextra -Wno-unused-parameter
 # C++ standard
@@ -27,7 +27,7 @@ ifdef ARCH_MAC
 	FLAGS += -DARCH_MAC
 	CXXFLAGS += -stdlib=libc++
 	LDFLAGS += -stdlib=libc++
-	MAC_SDK_FLAGS = -mmacosx-version-min=10.7
+	MAC_SDK_FLAGS = -mmacosx-version-min=11.0
 	FLAGS += $(MAC_SDK_FLAGS)
 	LDFLAGS += $(MAC_SDK_FLAGS)
 endif
