@@ -98,7 +98,7 @@ void init() {
 			struct passwd* pw = getpwuid(getuid());
 			assert(pw);
 			userDir = pw->pw_dir;
-			userDir += "/Documents/Rack";
+			userDir += "/Documents/Rack.arm64";
 #endif
 #if defined ARCH_LIN
 			// Get home directory
