@@ -103,8 +103,6 @@ int main(int argc, char* argv[]) {
 		patchPath = argv[optind];
 	}
 
-	// always enable dev mode on experimental version, because there is no compatible online library
-	settings::devMode = true;
 
 	// Initialize environment
 	asset::init();
