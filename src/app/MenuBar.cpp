@@ -649,10 +649,11 @@ struct LibraryMenu : ui::Menu {
 		setChildMenu(NULL);
 		clearChildren();
 
-		if (settings::devMode) {
-			addChild(createMenuLabel("Disabled in development mode"));
-		}
-		else if (!plugin::isLoggedIn()) {
+		//if (settings::devMode) {
+		addChild(createMenuLabel("No downloadable module libraries supported for this version."));
+		return;
+			//}
+		if (!plugin::isLoggedIn()) {
 			UrlItem* registerItem = new UrlItem;
 			registerItem->text = "Register VCV account";
 			registerItem->url = "https://vcvrack.com/";
@@ -785,14 +786,16 @@ struct HelpButton : MenuButton {
 		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y));
 		menu->box.size.x = box.size.x;
 
-		if (updater::isUpdateAvailable()) {
+		/*if (updater::isUpdateAvailable()) {
 			UpdateItem* updateItem = new UpdateItem;
 			updateItem->text = "Update " + APP_NAME;
 			updateItem->rightText = APP_VERSION + " → " + updater::version;
 			menu->addChild(updateItem);
-		}
+		}*/
 
-		UrlItem* manualItem = new UrlItem;
+        menu->addChild(createMenuLabel("Updates disabled for this version."));
+
+        UrlItem* manualItem = new UrlItem;
 		manualItem->text = "Manual";
 		manualItem->rightText = "F1";
 		manualItem->url = "https://vcvrack.com/manual/";
@@ -802,6 +805,11 @@ struct HelpButton : MenuButton {
 		websiteItem->text = "VCVRack.com";
 		websiteItem->url = "https://vcvrack.com/";
 		menu->addChild(websiteItem);
+
+        UrlItem* websiteLRItem = new UrlItem;
+        websiteLRItem->text = "Rack.arm64 at github.com";
+        websiteLRItem->url = "https://github.com/lindenbergresearch/Rack.arm64";
+        menu->addChild(websiteLRItem);
 
 		FolderItem* folderItem = new FolderItem;
 		folderItem->text = "Open user folder";
