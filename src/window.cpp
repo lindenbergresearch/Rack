@@ -329,6 +329,9 @@ Window::~Window() {
 
 void Window::run() {
 	frame = 0;
+
+	INFO("GPU: v-sync: %i | limit framerate: %f", settings::frameRateSync, settings::frameRateLimit);
+
 	while (!glfwWindowShouldClose(win)) {
 		double frameTime = glfwGetTime();
 		internal->lastFrameRate = 1.f / float(frameTime - frameTimeStart);
