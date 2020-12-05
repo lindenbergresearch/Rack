@@ -160,6 +160,7 @@ struct ModelBox : widget::OpaqueWidget {
 
 	void createPreview() {
 		previewFb = new widget::FramebufferWidget;
+
 		if (math::isNear(APP->window->pixelRatio, 1.0)) {
 			// Small details draw poorly at low DPI, so oversample when drawing to the framebuffer
 			previewFb->oversample = 2.0;
