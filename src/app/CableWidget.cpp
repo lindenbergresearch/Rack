@@ -51,7 +51,7 @@ static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor c
 		float disty = std::abs(pos1.y - pos2.y);
 		math::Vec slump;
 		slump.y = randomness * factor * (1.0 - rtension) * (150.0 + 1.0 * dist);
-		math::Vec pos3 = pos1.plus(pos2).div(2).plus(slump).minus(math::Vec(randomness*18,randomness*15));
+		math::Vec pos3 = pos1.plus(pos2).div(2).plus(slump).minus(math::Vec((randomness-1)*38,(randomness-1)*35));
 
 		// Adjust pos1 and pos2 to not draw over the plug
 		pos1 = pos1.plus(pos3.minus(pos1).normalize().mult(8));
