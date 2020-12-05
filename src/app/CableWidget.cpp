@@ -89,7 +89,7 @@ static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor c
 CableWidget::CableWidget() {
 	cable = new engine::Cable;
 
-	randomness = random::uniform() - 0.5;
+	randomness = random::uniform()/4;
 
 	color = color::BLACK_TRANSPARENT;
 	if (!settings::cableColors.empty()) {
