@@ -10,8 +10,8 @@
 #include <mutex>
 #include <atomic>
 #include <tuple>
-#include <pmmintrin.h>
-
+/* #include <pmmintrin.h> */
+#include "simd/sse2neon.h"
 
 namespace rack {
 namespace engine {
@@ -20,10 +20,10 @@ namespace engine {
 static void initMXCSR() {
 	// Set CPU to flush-to-zero (FTZ) and denormals-are-zero (DAZ) mode
 	// https://software.intel.com/en-us/node/682949
-	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-	_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+	//_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+	//	_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 	// Reset other flags
-	_MM_SET_ROUNDING_MODE(_MM_ROUND_NEAREST);
+	//	_MM_SET_ROUNDING_MODE(_MM_ROUND_NEAREST);
 }
 
 
@@ -93,7 +93,8 @@ struct SpinBarrier {
 		}
 		else {
 			while (count != 0) {
-				_mm_pause();
+				asm volatile("yield" ::: "memory");
+				//_mm_pause();
 			}
 		}
 	}
@@ -131,7 +132,8 @@ struct HybridBarrier {
 		while (!yield) {
 			if (count == 0)
 				return;
-			_mm_pause();
+			//_mm_pause();
+			asm volatile("yield" ::: "memory");
 		}
 
 		// Wait on mutex
