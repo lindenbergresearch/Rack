@@ -81,7 +81,7 @@ struct CableContainer : widget::TransparentWidget {
 RackWidget::RackWidget() {
 	railFb = new widget::FramebufferWidget;
 	railFb->box.size = math::Vec();
-	railFb->oversample = 1.0;
+	railFb->oversample = 2.0;
 	{
 		RackRail* rail = new RackRail;
 		rail->box.size = math::Vec();

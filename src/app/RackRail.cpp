@@ -14,32 +14,35 @@ RackRail::RackRail() {
 
 
 void RackRail::draw(const DrawArgs& args) {
-	const float railHeight = 15;
+	const float railHeight = 14;
 
 	// Background color
 	nvgBeginPath(args.vg);
 	nvgRect(args.vg, 0.0, 0.0, box.size.x, box.size.y);
-	nvgFillColor(args.vg, nvgRGB(0x30, 0x30, 0x30));
+	nvgFillColor(args.vg, nvgRGB(0x10, 0x10, 0x11));
 	nvgFill(args.vg);
 
 	// Rails
-	float holeRadius = 4.0;
+	float holeRadius = 3.0;
 	for (float y = 0; y < box.size.y; y += RACK_GRID_HEIGHT) {
-		nvgFillColor(args.vg, nvgRGB(0xc9, 0xc9, 0xc9));
+		nvgFillColor(args.vg, nvgRGB(0xA1, 0xA1, 0xA1));
 		nvgStrokeWidth(args.vg, 1.0);
-		nvgStrokeColor(args.vg, nvgRGB(0x9d, 0x9f, 0xa2));
+		nvgStrokeColor(args.vg, nvgRGB(0x35, 0x35, 0x35));
+		
 		// Top rail
 		nvgBeginPath(args.vg);
 		nvgRect(args.vg, 0, y, box.size.x, railHeight);
+		
 		for (float x = 0; x < box.size.x; x += RACK_GRID_WIDTH) {
 			nvgCircle(args.vg, x + RACK_GRID_WIDTH / 2, y + railHeight / 2, holeRadius);
 			nvgPathWinding(args.vg, NVG_HOLE);
 		}
+
 		nvgFill(args.vg);
 
 		nvgBeginPath(args.vg);
 		nvgMoveTo(args.vg, 0, y + railHeight - 0.5);
-		nvgLineTo(args.vg, box.size.x, y + railHeight - 0.5);
+	//	nvgLineTo(args.vg, box.size.x, y + railHeight - 0.5);
 		nvgStroke(args.vg);
 
 		// Bottom rail

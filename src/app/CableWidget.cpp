@@ -6,60 +6,66 @@
 #include <patch.hpp>
 #include <settings.hpp>
 #include <engine/Port.hpp>
-
+#include <random.hpp>
 
 namespace rack {
 namespace app {
 
 static void drawPlug(NVGcontext* vg, math::Vec pos, NVGcolor color) {
-	NVGcolor colorOutline = nvgLerpRGBA(color, nvgRGBf(0.0, 0.0, 0.0), 0.5);
+	auto colorOutline = nvgLerpRGBA(color, nvgRGBf(0.0, 0.0, 0.0), 0.9);
 
 	// Plug solid
 	nvgBeginPath(vg);
-	nvgCircle(vg, pos.x, pos.y, 9);
+	nvgCircle(vg, pos.x, pos.y, 8);
 	nvgFillColor(vg, color);
 	nvgFill(vg);
 
 	// Border
-	nvgStrokeWidth(vg, 1.0);
+	nvgStrokeWidth(vg, 0.6);
 	nvgStrokeColor(vg, colorOutline);
 	nvgStroke(vg);
 
 	// Hole
 	nvgBeginPath(vg);
-	nvgCircle(vg, pos.x, pos.y, 5);
+	nvgCircle(vg, pos.x, pos.y, 6.1);
 	nvgFillColor(vg, nvgRGBf(0.0, 0.0, 0.0));
 	nvgFill(vg);
 }
 
-static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor color, float thickness, float tension, float opacity) {
-	NVGcolor colorShadow = nvgRGBAf(0, 0, 0, 0.10);
-	NVGcolor colorOutline = nvgLerpRGBA(color, nvgRGBf(0.0, 0.0, 0.0), 0.5);
+static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor color, float thickness, float tension, float opacity, float randomness) {
+	NVGcolor colorShadow = nvgRGBAf(0, 0, 0, 0.44);
+	NVGcolor colorOutline = nvgLerpRGBA(color, nvgRGBf(0.0, 0.0, 0.0), 0.4);
 
+	
 	// Cable
 	if (opacity > 0.0) {
 		nvgSave(vg);
 		// This power scaling looks more linear than actual linear scaling
 		nvgGlobalAlpha(vg, std::pow(opacity, 1.5));
+		
+		auto factor = pos1.y < pos2.y && std::abs(pos1.x - pos2.x) < 350 ? -0.22 : 1; 
+		auto rtension = tension;
+		auto rthickness = thickness *= 0.7;
 
-		float dist = pos1.minus(pos2).norm();
+		float dist = pos1.minus(pos2).norm() * 0.2;
+		float disty = std::abs(pos1.y - pos2.y); 
 		math::Vec slump;
-		slump.y = (1.0 - tension) * (150.0 + 1.0 * dist);
+		slump.y = randomness * factor * (1.0 - rtension) * (150.0 + 1.0 * dist);
 		math::Vec pos3 = pos1.plus(pos2).div(2).plus(slump);
 
 		// Adjust pos1 and pos2 to not draw over the plug
-		pos1 = pos1.plus(pos3.minus(pos1).normalize().mult(9));
-		pos2 = pos2.plus(pos3.minus(pos2).normalize().mult(9));
+		pos1 = pos1.plus(pos3.minus(pos1).normalize().mult(8));
+		pos2 = pos2.plus(pos3.minus(pos2).normalize().mult(8));
 
 		nvgLineJoin(vg, NVG_ROUND);
 
 		// Shadow
-		math::Vec pos4 = pos3.plus(slump.mult(0.08));
+		math::Vec pos4 = pos3.plus(math::Vec(0, 7));
 		nvgBeginPath(vg);
 		nvgMoveTo(vg, pos1.x, pos1.y);
 		nvgQuadTo(vg, pos4.x, pos4.y, pos2.x, pos2.y);
 		nvgStrokeColor(vg, colorShadow);
-		nvgStrokeWidth(vg, thickness);
+		nvgStrokeWidth(vg, rthickness);
 		nvgStroke(vg);
 
 		// Cable outline
@@ -67,12 +73,12 @@ static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor c
 		nvgMoveTo(vg, pos1.x, pos1.y);
 		nvgQuadTo(vg, pos3.x, pos3.y, pos2.x, pos2.y);
 		nvgStrokeColor(vg, colorOutline);
-		nvgStrokeWidth(vg, thickness);
+		nvgStrokeWidth(vg, rthickness);
 		nvgStroke(vg);
 
 		// Cable solid
 		nvgStrokeColor(vg, color);
-		nvgStrokeWidth(vg, thickness - 2);
+		nvgStrokeWidth(vg, rthickness  * 0.7);
 		nvgStroke(vg);
 
 		nvgRestore(vg);
@@ -82,6 +88,8 @@ static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor c
 
 CableWidget::CableWidget() {
 	cable = new engine::Cable;
+
+	randomness = random::uniform() - 0.5;
 
 	color = color::BLACK_TRANSPARENT;
 	if (!settings::cableColors.empty()) {
@@ -257,7 +265,7 @@ void CableWidget::draw(const DrawArgs& args) {
 
 	math::Vec outputPos = getOutputPos();
 	math::Vec inputPos = getInputPos();
-	drawCable(args.vg, outputPos, inputPos, color, thickness, tension, opacity);
+	drawCable(args.vg, outputPos, inputPos, color, thickness, tension, opacity, randomness);
 }
 
 void CableWidget::drawPlugs(const DrawArgs& args) {
