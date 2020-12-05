@@ -39,7 +39,7 @@ void FramebufferWidget::step() {
 	// Otherwise, if the zoom level is changed while the FramebufferWidget is off-screen, the next draw() call will be skipped, the `dirty` flag will be true, and the framebuffer will be redrawn, but at the wrong scale, since it was not set in draw().
 	scale = math::Vec();
 	// Get subpixel offset in range [0, 1)
-	math::Vec offsetI = offset.floor();
+	math::Vec offsetI = offset;
 	fbOffset = offset.minus(offsetI);
 
 	math::Rect localBox;
@@ -150,12 +150,12 @@ void FramebufferWidget::draw(const DrawArgs& args) {
 
 	nvgBeginPath(args.vg);
 	nvgRect(args.vg,
-	        offsetI.x + fbBox.pos.x,
-	        offsetI.y + fbBox.pos.y,
+	        offset.x + fbBox.pos.x,
+	        offset.y + fbBox.pos.y,
 	        fbBox.size.x * scaleRatio.x, fbBox.size.y * scaleRatio.y);
 	NVGpaint paint = nvgImagePattern(args.vg,
-	                                 offsetI.x + fbBox.pos.x,
-	                                 offsetI.y + fbBox.pos.y,
+	                                 offset.x + fbBox.pos.x,
+	                                 offset.y + fbBox.pos.y,
 	                                 fbBox.size.x * scaleRatio.x, fbBox.size.y * scaleRatio.y,
 	                                 0.0, fb->image, 1.0);
 	nvgFillPaint(args.vg, paint);
