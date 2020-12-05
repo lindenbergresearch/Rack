@@ -103,6 +103,9 @@ int main(int argc, char* argv[]) {
 		patchPath = argv[optind];
 	}
 
+	// always enable dev mode on experimental version, because there is no compatible online library
+	settings::devMode = true;
+
 	// Initialize environment
 	asset::init();
 	logger::init();
@@ -189,6 +192,9 @@ int main(int argc, char* argv[]) {
 
 	INFO("Starting engine");
 	APP->engine->start();
+
+	osdialog_message(OSDIALOG_WARNING, OSDIALOG_OK, 
+		"IMPORTANT:\n\nThis is a non-official and experimental version of VCV Rack for Apple Silicon (arm64).\nIf you want to use an official and stable release - which runs fine via Rosetta 2 on arm based Mac's - please go to:\nhttps://vcvrack.com.\nAll current plugins are not compatible with this version and must be recompiled in order to run. For further updates go to: https://github.com/lindenbergresearch/Rack.arm64.\n\n +++ USE ON YOUR OWN RISC +++");
 
 	if (settings::headless) {
 		// TEMP Prove that the app doesn't crash
