@@ -17,10 +17,10 @@ void setTheme(NVGcolor bg, NVGcolor fg) {
 
 	BNDwidgetTheme w;
 	w.outlineColor = bg;
-	w.itemColor = fg;
+	w.itemColor = nvgRGBAf(0.9, 0.1, 0.1, 1.0);
 	w.innerColor = bg;
-	w.innerSelectedColor = color::plus(bg, nvgRGB(0x30, 0x30, 0x30));
-	w.textColor = fg;
+	w.innerSelectedColor = color::plus(nvgRGBAf(0.1, 0.3, 0.8,0.66), nvgRGB(0x30, 0x30, 0x30));
+	w.textColor = nvgRGBAf(0.9, 0.9, 0.9, 1.0);
 	w.textSelectedColor = fg;
 	w.shadeTop = 0;
 	w.shadeDown = 0;
@@ -45,7 +45,7 @@ void setTheme(NVGcolor bg, NVGcolor fg) {
 	t.sliderTheme.innerSelectedColor = color::plus(bg, nvgRGB(0x60, 0x60, 0x60));
 
 	t.textFieldTheme = t.sliderTheme;
-	t.textFieldTheme.textColor = color::minus(bg, nvgRGB(0x20, 0x20, 0x20));
+	t.textFieldTheme.textColor = nvgRGBAf(0.9, 0.1, 0.1, 1.0);
 	t.textFieldTheme.textSelectedColor = t.textFieldTheme.textColor;
 	t.textFieldTheme.itemColor = color::plus(bg, nvgRGB(0x30, 0x30, 0x30));
 
