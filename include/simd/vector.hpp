@@ -1,6 +1,7 @@
 #pragma once
 #include <cstring>
-#include <pmmintrin.h>
+/* #include <pmmintrin.h> */
+#include "sse2neon.h"
 
 
 namespace rack {

@@ -43,8 +43,8 @@ This derived source file is released under the zlib license.
   (this is the zlib license)
 */
 #pragma once
-#include <pmmintrin.h>
-
+/* #include <pmmintrin.h> */
+#include "sse2neon.h"
 
 /** Generate 1.f without accessing memory */
 inline __m128 sse_mathfun_one_ps() {
