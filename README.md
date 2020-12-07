@@ -1,7 +1,7 @@
 # Rack for Apple Silicon (arm64)
 
-This is an inofficial release of VCV Rack ported to Apple Silicon Architecture based on *arm64*.
-It basicaly relates on v1.1.6 but I added some optimizations and experimental graphics extentions.
+This is an unofficial release of VCV Rack ported to Apple Silicon Architecture based on *arm64*.
+It basically relates on v1.1.6 but I added some optimizations and experimental graphics extensions.
 
 These version needs at least an **M1 based Mac** and macOS **Big Sur**.
 
@@ -11,13 +11,13 @@ These version needs at least an **M1 based Mac** and macOS **Big Sur**.
 __This is an experimental version of Rack, use it 'as is' and on your own risk. Save your patches and backup files.__
 
 
-## 2. Generel information
+## 2. General information
 ---
 
 Please note the following points before starting:
 
 - this is an experimental release mainly to explore the possibilities of the Apple architecture 
-- Apple Silicon based Mac's are able to run the current version of VCV Rack fine while using Rosetta 2. The only drawback is that the performance is not optimized for that plattform, despite it runs very fast. For production usage I recommend using an official build: [VCV website](https://vcvrack.com/)  
+- Apple Silicon based Mac's are able to run the current version of VCV Rack fine while using Rosetta 2. The only drawback is that the performance is not optimized for that platform, despite it runs very fast. For production usage I recommend using an official build: [VCV website](https://vcvrack.com/)  
 - all online functions have been **disabled** (Update, Login etc.)
 - no current available plugins build for the official release will work with this version, because they are not binary compatible. You have them compile yourself or use a prebuild binary.
 - to avoid clashes this version uses a different folder to store data and plugins: __~/Documents/Rack.arm64__
