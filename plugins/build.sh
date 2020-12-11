@@ -15,12 +15,19 @@
 #    with or without modification please see LICENSE.
 #
 ARG1=$1
-LOGDIR=./log
+ARG2=$2
+LOG_DIR=./log
 
-mkdir -p $LOGDIR
+mkdir -p $LOG_DIR
 
 if [[ ${ARG1} == "" ]]; then
-  printf "build: no target given.\n"
+  cat logo.txt
+  printf "build: nothing to do.\n\n"
+  printf "USAGE: $0 [<TARGET>|CLEANUP] <OPTIONS>\n"
+  printf "\nTARGET\n  make target to execute on all plugins.\n"
+  printf "\nOPTIONS\n"
+  printf "  -n build only virgin plugins\n"
+  printf "\n"
   exit 1
 fi
 
@@ -31,7 +38,7 @@ if [ -f logo.txt ]; then
   cat logo.txt
 fi
 
-printf "logfiles stored at  : ${LOGDIR}\n"
+printf "logfiles stored at  : ${LOG_DIR}\n"
 printf "total cpu cores     : $(sysctl -n hw.ncpu)\n"
 printf "machine id          : $(uname -mpsr)\n\n"
 
@@ -39,7 +46,7 @@ printf "$(pwd):\n"
 
 if [[ $1 == "cleanup" ]]; then
   printf "just cleanup logs.\n"
-  rm -rf $LOGDIR
+  rm -rf $LOG_DIR
   exit
 fi
 
@@ -47,18 +54,23 @@ for i in */Makefile; do
   DIR=$(echo "$i" | cut -d"/" -f1)
   printf '* make: "%s" for: [%-26s] => ' "$ARG1" "$DIR"
 
+  if [[ "${ARG2}" == "-n" ]] && [ -f ./"$DIR"/plugin.dylib ]; then
+    printf "ignore.\n"
+    continue
+  fi
+
   pushd $DIR >/dev/null
 
   CMD="time make $ARG1 -j $(sysctl -n hw.ncpu)"
 
-  bash -c "$CMD" >../$LOGDIR/${DIR}.log 2>>../$LOGDIR/${DIR}.log
+  bash -c "$CMD" >../$LOG_DIR/${DIR}.log 2>>../$LOG_DIR/${DIR}.log
 
   if [ $? -ne 0 ]; then
     nok=$((nok + 1))
     printf "fail!\n"
   else
     ok=$((ok + 1))
-    T=$(cat ../$LOGDIR/${DIR}.log | grep real)
+    T=$(cat ../$LOG_DIR/${DIR}.log | grep real)
     printf "ok. [$T]\n"
   fi
 
