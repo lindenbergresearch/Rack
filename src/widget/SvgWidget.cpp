@@ -107,13 +107,11 @@ void SvgWidget::wrap() {
 
 void SvgWidget::setSvg(std::shared_ptr<Svg> svg) {
     this->svg = svg;
-    shape = svg->handle->shapes;
-
     wrap();
 }
 
 
-void SvgWidget::draw(const DrawArgs &args) {
+void SvgWidget::drawShape(const DrawArgs &args, NSVGshape *shape) {
     if (svg && svg->handle) {
         if (!visible) return;
 
