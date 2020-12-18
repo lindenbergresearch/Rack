@@ -17,32 +17,32 @@ static std::mutex logMutex;
 void init() {
 	startTime = std::chrono::high_resolution_clock::now();
 	if (settings::devMode) {
-		outputFile = stderr;
+		outputFile = stdout;
 		return;
 	}
 
 	outputFile = fopen(asset::logPath.c_str(), "w");
 	if (!outputFile) {
-		fprintf(stderr, "Could not open log at %s\n", asset::logPath.c_str());
+		fprintf(stdout, "Could not open log at %s\n", asset::logPath.c_str());
 	}
 }
 
 void destroy() {
-	if (outputFile != stderr) {
+	if (outputFile != stdout) {
 		fclose(outputFile);
 	}
 }
 
 static const char* const levelLabels[] = {
-	"debug",
-	"info",
-	"warn",
-	"fatal"
+	"DEBUG",
+	"INFO ",
+	"WARN ",
+	"FATAL"
 };
 
 static const int levelColors[] = {
-	35,
-	34,
+	36,
+	97,
 	33,
 	31
 };
@@ -52,12 +52,13 @@ static void logVa(Level level, const char* filename, int line, const char* forma
 
 	auto nowTime = std::chrono::high_resolution_clock::now();
 	int duration = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime).count();
-	if (outputFile == stderr)
-		fprintf(outputFile, "\x1B[%dm", levelColors[level]);
-	fprintf(outputFile, "[%.03f %s %s:%d] ", duration / 1000.0, levelLabels[level], filename, line);
-	if (outputFile == stderr)
-		fprintf(outputFile, "\x1B[0m");
+
+	if (outputFile == stdout) fprintf(outputFile, "\x1B[%dm", levelColors[level]);
+
+	fprintf(outputFile, "[%00006.03f %-26s %4d] %s ", duration / 1000.0, filename, line, levelLabels[level]);
+
 	vfprintf(outputFile, format, args);
+    if (outputFile == stdout) fprintf(outputFile, "\x1B[0m");
 	fprintf(outputFile, "\n");
 	fflush(outputFile);
 }
