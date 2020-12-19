@@ -15,7 +15,7 @@ static FILE *outputConsole = nullptr;
 static std::chrono::high_resolution_clock::time_point startTime;
 static std::mutex logMutex;
 
-static Level logLevel = TRACE_LEVEL;
+static Level logLevel = DEBUG_LEVEL;
 
 
 void init() {
@@ -60,18 +60,18 @@ static void logVa(Level level, const char *filename, int line, const char *funct
     std::lock_guard<std::mutex> lock(logMutex);
 
     auto nowTime = std::chrono::high_resolution_clock::now();
-    int duration = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime).count();
+    long duration = std::chrono::duration_cast<std::chrono::nanoseconds>(nowTime - startTime).count();
 
     if (outputConsole) {
         fprintf(outputConsole, "\x1B[%dm", levelColors[level]);
-        fprintf(outputConsole, "[%00006.03f %s::%s:%4d] %s ", duration / 1000.0, filename, funct, line, levelLabels[level]);
+        fprintf(outputConsole, "[%-6.5f] <%s->%s:%d> %s ", (double)duration / 10e9, filename, funct, line, levelLabels[level]);
         vfprintf(outputConsole, format, args);
         fprintf(outputConsole, "\x1B[0m");
         fprintf(outputConsole, "\n");
         fflush(outputConsole);
     }
 
-    fprintf(outputFile, "[%00006.03f %s::%s:%4d] %s ", duration / 1000.0, filename, funct, line, levelLabels[level]);
+    fprintf(outputFile, "[%-6.5f] <%s->%s(...):%d> %s ", (double)duration / 10e9, filename, funct, line, levelLabels[level]);
     vfprintf(outputFile, format, args);
     fprintf(outputFile, "\n");
     fflush(outputFile);
