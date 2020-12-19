@@ -117,7 +117,8 @@ void init() {
 	system::createDirectory(systemDir);
 	system::createDirectory(userDir);
 
-	// Set paths
+    logPath = userDir + "rack.log";
+
 	if (settings::devMode) {
 		pluginsPath = userDir + "/plugins";
 		settingsPath = userDir + "/settings.json";
@@ -125,7 +126,6 @@ void init() {
 		templatePath = userDir + "/template.vcv";
 	}
 	else {
-		logPath = userDir + "/log.txt";
 		pluginsPath = userDir + "/plugins-v" + app::ABI_VERSION;
 		settingsPath = userDir + "/settings-v" + app::ABI_VERSION + ".json";
 		autosavePath = userDir + "/autosave-v" + app::ABI_VERSION + ".vcv";
