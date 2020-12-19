@@ -9,6 +9,7 @@ will print something like
 
 	[0.123 debug myfile.cpp:45] error: 67
 */
+#define TRACE(format, ...) rack::logger::log(rack::logger::TRACE_LEVEL, __FUNCTION__, __LINE__, format, ##__VA_ARGS__)
 #define DEBUG(format, ...) rack::logger::log(rack::logger::DEBUG_LEVEL, __FILE__, __LINE__, format, ##__VA_ARGS__)
 #define INFO(format, ...) rack::logger::log(rack::logger::INFO_LEVEL, __FILE__, __LINE__, format, ##__VA_ARGS__)
 #define WARN(format, ...) rack::logger::log(rack::logger::WARN_LEVEL, __FILE__, __LINE__, format, ##__VA_ARGS__)
@@ -24,7 +25,8 @@ namespace logger {
 
 
 enum Level {
-	DEBUG_LEVEL,
+    TRACE_LEVEL,
+    DEBUG_LEVEL,
 	INFO_LEVEL,
 	WARN_LEVEL,
 	FATAL_LEVEL
