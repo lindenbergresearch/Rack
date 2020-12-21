@@ -1,8 +1,8 @@
 #include <common.hpp>
 #include <asset.hpp>
 #include <settings.hpp>
-#include <chrono>
 #include <mutex>
+#include <timer.hpp>
 
 
 namespace rack {
@@ -12,15 +12,11 @@ namespace logger {
 static FILE *outputFile = nullptr;
 static FILE *outputConsole = nullptr;
 
-static std::chrono::high_resolution_clock::time_point startTime;
 static std::mutex logMutex;
-
-static Level logLevel = DEBUG_LEVEL;
+static Level logLevel = TRACE_LEVEL;
 
 
 void init() {
-    startTime = std::chrono::high_resolution_clock::now();
-
     if (settings::devMode) {
         outputConsole = stdout;
     }
@@ -48,9 +44,9 @@ static const char *const levelLabels[] = {
 };
 
 static const int levelColors[] = {
-        35,
+        31,
         36,
-        98,
+        39,
         33,
         31
 };
@@ -59,19 +55,18 @@ static const int levelColors[] = {
 static void logVa(Level level, const char *filename, int line, const char *funct, const char *format, va_list args) {
     std::lock_guard<std::mutex> lock(logMutex);
 
-    auto nowTime = std::chrono::high_resolution_clock::now();
-    long duration = std::chrono::duration_cast<std::chrono::nanoseconds>(nowTime - startTime).count();
+    long duration = rack::timer::nanoTime();
 
     if (outputConsole) {
         fprintf(outputConsole, "\x1B[%dm", levelColors[level]);
-        fprintf(outputConsole, "[%-6.5f] <%s->%s:%d> %s ", (double)duration / 10e9, filename, funct, line, levelLabels[level]);
+        fprintf(outputConsole, "[%-6.5f] <%s->%s:%d> %s ", (double) duration / 10e8, filename, funct, line, levelLabels[level]);
         vfprintf(outputConsole, format, args);
         fprintf(outputConsole, "\x1B[0m");
         fprintf(outputConsole, "\n");
         fflush(outputConsole);
     }
 
-    fprintf(outputFile, "[%-6.5f] <%s->%s(...):%d> %s ", (double)duration / 10e9, filename, funct, line, levelLabels[level]);
+    fprintf(outputFile, "[%-6.5f] <%s->%s(...):%d> %s ", (double) duration / 10e8, filename, funct, line, levelLabels[level]);
     vfprintf(outputFile, format, args);
     fprintf(outputFile, "\n");
     fflush(outputFile);
