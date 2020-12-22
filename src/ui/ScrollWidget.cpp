@@ -57,8 +57,8 @@ void ScrollWidget::step() {
 
 	// Reposition and resize scroll bars
 	math::Vec inner = box.size.minus(math::Vec(verticalScrollBar->box.size.x, horizontalScrollBar->box.size.y));
-	horizontalScrollBar->box.pos.y = inner.y;
-	verticalScrollBar->box.pos.x = inner.x;
+	horizontalScrollBar->box.pos.y = inner.y + 2;
+	verticalScrollBar->box.pos.x = inner.x + 2;
 	horizontalScrollBar->box.size.x = verticalScrollBar->visible ? inner.x : box.size.x;
 	verticalScrollBar->box.size.y = horizontalScrollBar->visible ? inner.y : box.size.y;
 }
