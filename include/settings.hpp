@@ -1,4 +1,5 @@
 #pragma once
+
 #include <common.hpp>
 #include <math.hpp>
 #include <color.hpp>
@@ -40,11 +41,13 @@ extern float autosavePeriod;
 extern bool skipLoadOnLaunch;
 extern std::string patchPath;
 extern std::vector<NVGcolor> cableColors;
+extern float fbOversample;
+extern float bufferRatio;
 
-json_t* toJson();
-void fromJson(json_t* rootJ);
-void save(const std::string& path);
-void load(const std::string& path);
+json_t *toJson();
+void fromJson(json_t *rootJ);
+void save(const std::string &path);
+void load(const std::string &path);
 
 
 } // namespace settings

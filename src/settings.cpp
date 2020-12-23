@@ -32,6 +32,8 @@ bool lockModules = false;
 float frameRateLimit = 60;
 bool frameRateSync = true;
 float autosavePeriod = 60.0;
+float fbOversample = 2.0;
+float bufferRatio = 0.0;
 
 #if defined ARCH_MAC
 	// Most Mac GPUs can't handle rendering the screen every frame, so use ~30 Hz by default.
@@ -88,6 +90,10 @@ json_t* toJson() {
 	json_object_set_new(rootJ, "frameRateSync", json_boolean(frameRateSync));
 
 	json_object_set_new(rootJ, "autosavePeriod", json_real(autosavePeriod));
+
+    json_object_set_new(rootJ, "fbOversample", json_real(sampleRate));
+
+    json_object_set_new(rootJ, "bufferRatio", json_real(sampleRate));
 
 	if (skipLoadOnLaunch) {
 		json_object_set_new(rootJ, "skipLoadOnLaunch", json_true());
@@ -183,6 +189,14 @@ void fromJson(json_t* rootJ) {
 	json_t* skipLoadOnLaunchJ = json_object_get(rootJ, "skipLoadOnLaunch");
 	if (skipLoadOnLaunchJ)
 		skipLoadOnLaunch = json_boolean_value(skipLoadOnLaunchJ);
+
+    json_t* fbOversampleJ = json_object_get(rootJ, "fbOversample");
+    if (fbOversampleJ)
+        fbOversample = std::ceil(json_number_value(fbOversampleJ));
+
+    json_t* bufferRatioJ = json_object_get(rootJ, "bufferRatio");
+    if (bufferRatioJ)
+        bufferRatio = json_number_value(bufferRatioJ);
 
 	json_t* patchPathJ = json_object_get(rootJ, "patchPath");
 	if (patchPathJ)
