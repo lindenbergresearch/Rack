@@ -91,9 +91,9 @@ json_t* toJson() {
 
 	json_object_set_new(rootJ, "autosavePeriod", json_real(autosavePeriod));
 
-    json_object_set_new(rootJ, "fbOversample", json_real(sampleRate));
+    json_object_set_new(rootJ, "fbOversample", json_real(fbOversample));
 
-    json_object_set_new(rootJ, "bufferRatio", json_real(sampleRate));
+    json_object_set_new(rootJ, "bufferRatio", json_real(bufferRatio));
 
 	if (skipLoadOnLaunch) {
 		json_object_set_new(rootJ, "skipLoadOnLaunch", json_true());
