@@ -5,15 +5,9 @@
 namespace rack {
 namespace widget {
 
-
 using namespace rack::math;
 
 
-/**
- * @brief Converts a 32bit encoded color to RGBA
- * @param color
- * @return
- */
 NVGcolor SvgWidget::getNVGColor(uint32_t color) {
     return nvgRGBA(
             (color >> 0) & 0xff,
@@ -23,15 +17,8 @@ NVGcolor SvgWidget::getNVGColor(uint32_t color) {
 }
 
 
-/**
- * @brief Prepare complex paint with gradients
- * @param vg
- * @param p
- * @return
- */
 NVGpaint SvgWidget::getPaint(NVGcontext *vg, NSVGpaint *p) {
     NVGpaint paint;
-    //save++;
 
     // check for supported gradients
     assert(p->type == NSVG_PAINT_LINEAR_GRADIENT || p->type == NSVG_PAINT_RADIAL_GRADIENT);
@@ -73,14 +60,6 @@ NVGpaint SvgWidget::getPaint(NVGcontext *vg, NSVGpaint *p) {
 }
 
 
-/**
- * @brief Returns the parameterized value of the line p2--p3 where it intersects with p0--p1
- * @param p0
- * @param p1
- * @param p2
- * @param p3
- * @return
- */
 float SvgWidget::getLineCrossing(Vec p0, Vec p1, Vec p2, Vec p3) {
     auto b = p2.minus(p0);
     auto d = p1.minus(p0);
@@ -106,29 +85,122 @@ void SvgWidget::wrap() {
 
 
 void SvgWidget::setSvg(std::shared_ptr<Svg> svg) {
+    if (svg == nullptr || svg->handle == nullptr) {
+        WARN("%p Invalid svg handle!", this);
+        direct = true;
+        return;
+    }
+
     this->svg = svg;
     wrap();
+
+    if (svg->handle->width > 1000 || svg->handle->height > 1000) oversample = 2;
+    else oversample = 2;
+
+    TRACE("%p set svg: %s oversample is: %dx", this, svg->filename.c_str(), oversample);
+
+    if (svg->fb) {
+        TRACE("%p framebuffer already setup for svg: %s.", svg->fb, svg->filename.c_str());
+    }
+
+    //if (svg->handle->width <= 30 || svg->handle->height <= 30) direct = true;
+
+    if (!direct) {
+        createFbo();
+    } else {
+        TRACE("%p using direct draw for svg: %s", svg->filename.c_str());
+    }
 }
 
 
-void SvgWidget::drawShape(const DrawArgs &args, NSVGshape *shape) {
+void SvgWidget::draw(const DrawArgs &args) {
+    if (!foo && !direct && svg->fb != nullptr && svg->fb->image && svg != nullptr) {
+        drawFromFbo(args);
+    } else {
+        drawDirect(args);
+        foo = false;
+    }
+}
+
+
+void SvgWidget::drawDirect(const DrawArgs &args) {
+    auto start = timer::nanoTime();
+    for (auto *shape = svg->handle->shapes; shape; shape = shape->next) {
+        drawShape(args.vg, shape);
+    }
+    drawTime = (double) (timer::nanoTime() - start) / 10e5;
+}
+
+
+void SvgWidget::drawFromFbo(const DrawArgs &args) {
+    TRACE("%p rendering svg image via framebuffer for file: %s", this, svg->filename.c_str());
+
+    auto start = timer::nanoTime();
+
+    int fboWidth, fboHeight;
+    nvgImageSize(args.vg, svg->fb->image, &fboWidth, &fboHeight);
+
+    if (fboWidth < 4 || fboWidth > 5000 || fboHeight < 4 || fboHeight > 5000) {
+        WARN("%p Invalid FBO detected: (%d, %d)", this, fboWidth, fboHeight);
+
+        // switch to direct drawing.
+        direct = true;
+        return;
+    }
+
+    TRACE("%p box=(%f, %f) fbo=(%d, %d)", this, box.size.x, box.size.y, fboWidth, fboHeight);
+
+    if (!svg->fb || !svg->fb->image) {
+        WARN("%p invalid FBO!");
+        return;
+    }
+
+    nvgSave(args.vg);
+
+    nvgBeginPath(args.vg);
+    nvgScale(args.vg, 1.f / (float) oversample, 1.f / (float) oversample);
+    nvgRect(args.vg, 0, 0, (float) fboWidth, (float) fboHeight);
+    auto paint = nvgImagePattern(args.vg, 0, 0, (float) fboWidth, (float) fboHeight, 0.0, svg->fb->image, 1.0);
+
+    nvgFillPaint(args.vg, paint);
+    nvgFill(args.vg);
+
+    nvgRestore(args.vg);
+
+    if (drawTime > 0) {
+        bufferTime = (double) (timer::nanoTime() - start) / 10e5;
+        auto ratio = drawTime / bufferTime;
+
+        if (ratio < 2)
+            DEBUG("%p HANDLE TIMING  buffer=%.4f direct=%.4f", this, bufferTime, drawTime);
+
+        if (ratio < 2)
+            /* DEBUG("%p ratio: %.5f %s", this, ratio, svg->filename.c_str());
+         else*/
+            WARN("%p ratio: %.5f %s", this, ratio, svg->filename.c_str());
+
+    }
+}
+
+
+void SvgWidget::drawShape(NVGcontext *vg, NSVGshape *shape) {
     if (svg && svg->handle) {
         if (!visible) return;
 
-        nvgSave(args.vg);
+        nvgSave(vg);
 
-        nvgGlobalAlpha(args.vg, shape->opacity);
-        nvgBeginPath(args.vg);
+        nvgGlobalAlpha(vg, shape->opacity);
+        nvgBeginPath(vg);
 
         for (auto *path = shape->paths; path; path = path->next) {
-            nvgMoveTo(args.vg, path->pts[0], path->pts[1]);
+            nvgMoveTo(vg, path->pts[0], path->pts[1]);
 
             for (auto i = 1; i < path->npts; i += 3) {
                 auto *p = &path->pts[2 * i];
-                nvgBezierTo(args.vg, p[0], p[1], p[2], p[3], p[4], p[5]);
+                nvgBezierTo(vg, p[0], p[1], p[2], p[3], p[4], p[5]);
             }
 
-            if (path->closed) nvgClosePath(args.vg);
+            if (path->closed) nvgClosePath(vg);
 
             auto crossings = 0;
             auto p0 = Vec(path->pts[0], path->pts[1]);
@@ -150,8 +222,8 @@ void SvgWidget::drawShape(const DrawArgs &args, NSVGshape *shape) {
                 }
             }
 
-            if (crossings % 2 == 0) nvgPathWinding(args.vg, NVG_SOLID);
-            else nvgPathWinding(args.vg, NVG_HOLE);
+            if (crossings % 2 == 0) nvgPathWinding(vg, NVG_SOLID);
+            else nvgPathWinding(vg, NVG_HOLE);
 
         }
 
@@ -159,41 +231,104 @@ void SvgWidget::drawShape(const DrawArgs &args, NSVGshape *shape) {
             switch (shape->fill.type) {
                 case NSVG_PAINT_COLOR: {
                     auto color = SvgWidget::getNVGColor(shape->fill.color);
-                    nvgFillColor(args.vg, color);
+                    nvgFillColor(vg, color);
                 }
                     break;
                 case NSVG_PAINT_LINEAR_GRADIENT:
                 case NSVG_PAINT_RADIAL_GRADIENT: {
-                    nvgFillPaint(args.vg, SvgWidget::getPaint(args.vg, &shape->fill));
+                    nvgFillPaint(vg, SvgWidget::getPaint(vg, &shape->fill));
                 }
                     break;
             }
 
-            nvgFill(args.vg);
+            nvgFill(vg);
         }
 
         if (shape->stroke.type) {
-            nvgStrokeWidth(args.vg, shape->strokeWidth);
-            nvgLineCap(args.vg, (NVGlineCap) shape->strokeLineCap);
-            nvgLineJoin(args.vg, (int) shape->strokeLineJoin);
+            nvgStrokeWidth(vg, shape->strokeWidth);
+            nvgLineCap(vg, (NVGlineCap) shape->strokeLineCap);
+            nvgLineJoin(vg, (int) shape->strokeLineJoin);
 
             switch (shape->stroke.type) {
                 case NSVG_PAINT_COLOR: {
                     auto color = SvgWidget::getNVGColor(shape->stroke.color);
-                    nvgStrokeColor(args.vg, color);
+                    nvgStrokeColor(vg, color);
                     break;
                 }
                 case NSVG_PAINT_LINEAR_GRADIENT:
                 case NSVG_PAINT_RADIAL_GRADIENT: {
-                    nvgStrokePaint(args.vg, SvgWidget::getPaint(args.vg, &shape->stroke));
+                    nvgStrokePaint(vg, SvgWidget::getPaint(vg, &shape->stroke));
                     break;
                 }
             }
-            nvgStroke(args.vg);
+            nvgStroke(vg);
         }
 
-        nvgRestore(args.vg);
+        nvgRestore(vg);
     }
+}
+
+
+void SvgWidget::createFbo() {
+    if (svg == nullptr || svg->handle == nullptr || svg->fb) return; //skip
+
+    //  if (fb != nullptr) nvgluDeleteFramebuffer(fb);
+
+
+    auto vg = APP->window->vg;
+    int winWidth, winHeight;
+    int fbWidth, fbHeight;
+    float pxRatio;
+
+    glfwGetWindowSize(APP->window->win, &winWidth, &winHeight);
+    glfwGetFramebufferSize(APP->window->win, &fbWidth, &fbHeight);
+
+    // Calculate pixel ration for hi-dpi devices.
+    pxRatio = (float) fbWidth / (float) winWidth *  (float) oversample;
+
+    // if (fb == nullptr) {
+    TRACE("%p creating framebuffer for: %s", this, svg->filename.c_str());
+
+    if (!svg || !svg->handle || svg->handle->width <= 0 | svg->handle->height <= 0) {
+        WARN("%p invalid svg: %s dimensions=(%d, %d)", this, svg->filename.c_str(), svg->handle ? svg->handle->width : 0, svg->handle ? svg->handle->height : 0);
+        return;
+    }
+
+    TRACE("%p SVG=(%f, %f) box=(%f, %f)", this, svg->handle->width, svg->handle->height, box.size.x, box.size.y);
+    TRACE("%p win framebuffer: fbo=(%d, %d) win=(%d, %d) r=1:%d", this, fbWidth, fbHeight, winWidth, winHeight, pxRatio);
+
+    int fboWidth = (int) ceil((box.size.x * pxRatio));
+    int fboHeight = (int) ceil((box.size.y * pxRatio));
+
+    svg->fb = nvgluCreateFramebuffer(vg, fboWidth, fboHeight, 0);
+
+    if (!svg->fb) {
+        WARN("%p unable to create framebuffer for svg: %s", this, svg->filename.c_str());
+        return;
+    }
+
+    nvgluBindFramebuffer(svg->fb);
+
+    glViewport(0, 0, fboWidth, fboHeight);
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    nvgBeginFrame(vg, box.size.x, box.size.y, pxRatio);
+    nvgBeginPath(vg);
+
+    // auto start = timer::nanoTime();
+    for (auto *shape = svg->handle->shapes; shape; shape = shape->next) {
+        drawShape(vg, shape);
+    }
+    //  drawTime = (double) (timer::nanoTime() - start) / 10e5;
+
+    // DEBUG("%p draw-time for svg: %s %.4f", this, svg->filename.c_str(), drawTime * 10e3);
+
+    nvgEndFrame(vg);
+    nvgReset(vg);
+
+    nvgluBindFramebuffer(nullptr);
+    // }
 }
 
 
