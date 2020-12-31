@@ -97,7 +97,7 @@ COUNT=$(ls */Makefile | wc -l)
 printf '\u001b[37m\n%s\n%s\n%s\n%s\n\n' "succeeded    : $ok" "failed       : $nok" "total        : $((ok + nok))" "disk usage   : $(du -hac | grep total | cut -d"t" -f1)"
 
 print "\u001b[0m"
-if [[ $1 == "run" ]]; then
+if [[ $1 == "run" && $nok == "00" ]]; then
   printf "Running App..\n"
   cd ..
   make run
