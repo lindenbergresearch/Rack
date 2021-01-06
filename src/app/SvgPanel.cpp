@@ -12,6 +12,13 @@ void PanelBorder::draw(const DrawArgs& args) {
 	nvgStrokeColor(args.vg, borderColor);
 	nvgStrokeWidth(args.vg, 1.0);
 	nvgStroke(args.vg);
+
+	nvgBeginPath(args.vg);
+    nvgRect(args.vg, 0., 0., box.size.x , box.size.y );
+    auto paint = nvgLinearGradient(args.vg, box.size.x / 2, 100, box.size.x / 2, box.size.y, nvgRGBAf(1, 1, 1, 0.05), nvgRGBAf(0, 0, 0, 0.4));
+    nvgFillPaint(args.vg, paint);
+    nvgFill(args.vg);
+
 }
 
 
