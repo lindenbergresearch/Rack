@@ -165,7 +165,7 @@ ifdef ARCH_WIN
 endif
 	cd dist && zip -q -9 -r $(DIST_SDK) Rack-SDK
 
-
+#qtdh-tdva-ufof-wvuh
 notarize:
 ifdef ARCH_MAC
 	# This will only work if you have my Apple ID password in your keychain
@@ -173,7 +173,7 @@ ifdef ARCH_MAC
 	# Wait for Apple's servers to approve the app
 	while true; do \
 		echo "Waiting on Apple servers..." ; \
-		xcrun altool --notarization-info `/usr/libexec/PlistBuddy -c "Print :notarization-upload:RequestUUID" dist/UploadInfo.plist` -u "andrewpbelt@gmail.com" -p @keychain:notarize --output-format xml > dist/RequestInfo.plist ; \
+		xcrun altool --notarization-info `/usr/libexec/PlistBuddy -c "Print :notarization-upload:RequestUUID" dist/UploadInfo.plist` -u "heapdump@icloud.com" -p @keychain:notarize --output-format xml > dist/RequestInfo.plist ; \
 		if [ "`/usr/libexec/PlistBuddy -c "Print :notarization-info:Status" dist/RequestInfo.plist`" != "in progress" ]; then \
 			break ; \
 		fi ; \
