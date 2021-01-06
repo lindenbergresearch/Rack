@@ -30,9 +30,12 @@ struct Widget {
 	/** If set to true, parent will delete Widget in the next step() */
 	bool requestedDelete = false;
 
-	virtual ~Widget();
+    timer::Stopwatch *rtime, *stime;
 
-	void setPosition(math::Vec pos);
+    virtual ~Widget();
+    Widget();
+
+    void setPosition(math::Vec pos);
 	void setSize(math::Vec size);
 	void show();
 	void hide();
