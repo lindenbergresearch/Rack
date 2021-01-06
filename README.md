@@ -29,8 +29,9 @@ Here are some of the changes included in this version:
 - The cable drawing has been changed and a bit humanized and the colors changed to look a bit more funky baby.
 - v-sync could be enabled via settings.json
 
-For more details please look at the git commits.
+For more details please look at the git commits or contact me.
 
+In general all UI and graphics tweaks and changes could also run on Intel machines and on Linux and Windows. 
 
 
 ## 1. Caution
