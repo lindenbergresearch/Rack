@@ -11,6 +11,7 @@ namespace rack {
 namespace system {
 
 
+
 /** Returns a list of all entries (directories, files, symbols) in a directory. */
 std::list<std::string> getEntries(const std::string& path);
 std::list<std::string> getEntriesRecursive(const std::string &path, int depth);
