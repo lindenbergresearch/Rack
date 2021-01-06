@@ -5,6 +5,34 @@ It basically relates on v1.1.6 but I added some optimizations and experimental g
 
 These version needs at least an **M1 based Mac** and macOS **Big Sur**.
 
+
+## Update 01/06/2021
+
+I updated the sources und pushed all changes to github. I am sorry for the bad git comments and noisy reformatting, 
+I was a bit busy and lazy... you may have to figure out yourself. Don't hesitate to ask me :-)
+
+
+**WARNING:** *This is an experimental version, some features may not work proper or remain unfinished. 
+Make backups and use with care.*
+
+
+Here are some of the changes included in this version:
+
+- **Logger:** A TRACE log-level has been added, default global level is set to: DEBUG. Logging is done to console **and** 
+  to filesystem now (for later analysing...). Colors and formatting have been changed for better readability.
+- SVGs are buffered now as raster-graphics (oversampled for quality), which is eating more 
+  RAM but increases speed on zooming dramatically especially on slow systems.
+- It uses now an own adapted version of blendisch containing a lot of UI tweaks and changes. 
+  Also the overall font has been changed to: Asimov and setup a bit bigger.
+- CPU and GPU monitoring has been extended: Now it measures also the step-time and draw-time. 
+  Design has been changed and the sum of all modules usage is displayed on the right side.
+- The cable drawing has been changed and a bit humanized and the colors changed to look a bit more funky baby.
+- v-sync could be enabled via settings.json
+
+For more details please look at the git commits.
+
+
+
 ## 1. Caution
 ---
 
