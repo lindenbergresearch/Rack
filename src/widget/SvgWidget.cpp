@@ -103,7 +103,7 @@ void SvgWidget::setSvg(std::shared_ptr<Svg> svg) {
         TRACE("%p framebuffer already setup for svg: %s.", svg->fb, svg->filename.c_str());
     }
 
-    //if (svg->handle->width <= 30 || svg->handle->height <= 30) direct = true;
+  //  if (svg->handle->width <= 80 || svg->handle->height <= 80) direct = true;
 
     if (!direct) {
         createFbo();
