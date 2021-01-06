@@ -13,6 +13,7 @@
 #include <nanovg_gl.h>
 #include <nanovg_gl_utils.h>
 #include <nanosvg.h>
+#include "timer.hpp"
 
 
 namespace rack {
@@ -42,6 +43,12 @@ struct Image {
 
 struct Svg {
 	NSVGimage* handle = NULL;
+
+    /** Framebuffer for caching svg data */
+    NVGLUframebuffer *fb = nullptr;
+
+    std::string filename;
+
 	/** Don't call this directly but instead use `APP->window->loadSvg()` */
 	void loadFile(const std::string& filename);
 	~Svg();
@@ -61,7 +68,12 @@ struct Window {
 	This is not equal to gPixelRatio in general.
 	*/
 	float windowRatio = 1.f;
-	int frame = 0;
+	double fps, frameTime;
+	long frame = 0;
+
+	timer::Stopwatch *ftime, *stime, *rtime;
+
+
 	/** The last known absolute mouse position in the window */
 	math::Vec mousePos;
 	std::shared_ptr<Font> uiFont;
