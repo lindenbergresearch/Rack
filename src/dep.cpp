@@ -17,7 +17,7 @@
 #include <nanovg_gl_utils.h>
 
 #define BLENDISH_IMPLEMENTATION
-#include <blendish.h>
+#include <blendish.hpp>
 
 #define NANOSVG_IMPLEMENTATION
 #define NANOSVG_ALL_COLOR_KEYWORDS
