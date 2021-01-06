@@ -11,44 +11,64 @@
 namespace rack {
 namespace app {
 
-static void drawPlug(NVGcontext* vg, math::Vec pos, NVGcolor color) {
-	auto colorOutline = nvgLerpRGBA(color, nvgRGBf(0.0, 0.0, 0.0), 0.9);
+static void drawPlug(NVGcontext* vg, math::Vec pos, NVGcolor color, bool poly = false) {
+	/*auto colorOutline = nvgLerpRGBA(color, nvgRGBf(0.0, 0.0, 0.0), 0.6);
 
-	// Plug solid
+	if (settings::cableOpacity <= 0) return;
+
+    nvgGlobalAlpha(vg, std::pow(settings::cableOpacity, 1.5));
+    // Plug solid
 	nvgBeginPath(vg);
 	nvgCircle(vg, pos.x, pos.y, 8);
 	nvgFillColor(vg, color);
 	nvgFill(vg);
 
 	// Border
-	nvgStrokeWidth(vg, 0.6);
+	nvgStrokeWidth(vg, poly ? 0.8 : 0.3);
 	nvgStrokeColor(vg, colorOutline);
 	nvgStroke(vg);
 
 	// Hole
 	nvgBeginPath(vg);
-	nvgCircle(vg, pos.x, pos.y, 6.1);
-	nvgFillColor(vg, nvgRGBf(0.0, 0.0, 0.0));
-	nvgFill(vg);
+	nvgCircle(vg, pos.x, pos.y, 4.6);
+	nvgFillColor(vg, nvgRGBAf(0.0, 0.0, 0.0, 1.0));
+	nvgFill(vg);*/
+    NVGcolor colorOutline = nvgLerpRGBA(color, nvgRGBf(0.0, 0.0, 0.0), 0.5);
+
+    // Plug solid
+    nvgBeginPath(vg);
+    nvgCircle(vg, pos.x, pos.y, 6.7);
+    nvgFillColor(vg, color);
+    nvgFill(vg);
+
+    // Border
+    nvgStrokeWidth(vg, 0.5);
+    nvgStrokeColor(vg, colorOutline);
+    nvgStroke(vg);
+
+    // Hole
+    nvgBeginPath(vg);
+    nvgCircle(vg, pos.x, pos.y, 4.4);
+    nvgFillColor(vg, nvgRGBf(0.0, 0.0, 0.0));
+    nvgFill(vg);
 }
 
-static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor color, float thickness, float tension, float opacity, float randomness) {
+static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor color, float thickness, float tension, float opacity, float randomness, bool poly = false) {
 	NVGcolor colorShadow = nvgRGBAf(0, 0, 0, 0.44);
 	NVGcolor colorOutline = nvgLerpRGBA(color, nvgRGBf(0.0, 0.0, 0.0), 0.4);
 
 
-	// Cable
+    // Cable
 	if (opacity > 0.0) {
 		nvgSave(vg);
 		// This power scaling looks more linear than actual linear scaling
-		nvgGlobalAlpha(vg, std::pow(opacity, 1.5));
+		//nvgGlobalAlpha(vg, std::pow(opacity, 1.5));
 
 		auto factor = pos1.y < pos2.y && std::abs(pos1.x - pos2.x) < 350 ? -0.22 : 1;
 		auto rtension = tension;
 		auto rthickness = thickness *= 0.7;
 
 		float dist = pos1.minus(pos2).norm() * 0.2;
-		float disty = std::abs(pos1.y - pos2.y);
 		math::Vec slump;
 		slump.y = randomness * factor * (1.0 - rtension) * (150.0 + 1.0 * dist);
 		math::Vec pos3 = pos1.plus(pos2).div(2).plus(slump).minus(math::Vec((randomness-1)*38,(randomness-1)*35));
@@ -60,7 +80,7 @@ static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor c
 		nvgLineJoin(vg, NVG_ROUND);
 
 		// Shadow
-		math::Vec pos4 = pos3.plus(math::Vec(0, 7));
+		math::Vec pos4 = pos3.plus(math::Vec(0, poly ? 12 : 7));
 		nvgBeginPath(vg);
 		nvgMoveTo(vg, pos1.x, pos1.y);
 		nvgQuadTo(vg, pos4.x, pos4.y, pos2.x, pos2.y);
@@ -89,7 +109,8 @@ static void drawCable(NVGcontext* vg, math::Vec pos1, math::Vec pos2, NVGcolor c
 CableWidget::CableWidget() {
 	cable = new engine::Cable;
 
-	randomness = 1. + (random::uniform() * 0.4 - 0.2);
+	// humanize things a bit
+	randomness = 1. + (random::uniform() * 0.2 - 0.1);
 
 	color = color::BLACK_TRANSPARENT;
 	if (!settings::cableColors.empty()) {
@@ -240,7 +261,7 @@ void CableWidget::fromJson(json_t* rootJ) {
 void CableWidget::draw(const DrawArgs& args) {
 	float opacity = settings::cableOpacity;
 	float tension = settings::cableTension;
-	float thickness = 5;
+	float thickness = 6;
     bool poly = false;
 
 	if (isComplete()) {
@@ -249,7 +270,7 @@ void CableWidget::draw(const DrawArgs& args) {
 		if (output->channels > 1) {
 			// Increase thickness if output port is polyphonic
 			poly = true;
-			thickness = 2.9;
+			thickness = 7;
 		}
 
 		if (outputPort->hovered || inputPort->hovered) {
@@ -265,55 +286,76 @@ void CableWidget::draw(const DrawArgs& args) {
 		opacity = 1.0;
 	}
 
+	// use slightly different color for poly cabels
+	auto newc = poly ? nvgRGBf(color.r * 0.8 , color.g * 0.8 , color.b * 0.7) : color;
+
 	math::Vec outputPos = getOutputPos();
 	math::Vec inputPos = getInputPos();
-	drawCable(args.vg, outputPos, inputPos, color, thickness, tension, opacity, randomness);
 
-	if (poly) {
-	   /* auto v1 = math::Vec(1,1.3);
-        auto v2 = math::Vec(2.2,2);
-        auto v3 = math::Vec(-1.8,-1);
-        auto v4 = math::Vec(-2,-2.3);
+    nvgGlobalAlpha(args.vg, std::pow(opacity, 1.5));
+ //   drawPlug(args.vg, outputPos, color, poly);
+  //  drawPlug(args.vg, inputPos, color, poly);
 
-        drawCable(args.vg, outputPos.plus(v1), inputPos.plus(v1), color, thickness, tension*0.992, opacity, randomness);
-        drawCable(args.vg, outputPos.plus(v2), inputPos.plus(v2), color, thickness, tension*0.994, opacity, randomness);
-        drawCable(args.vg, outputPos.plus(v3), inputPos.plus(v3), color, thickness, tension*1.0012, opacity, randomness);
-        drawCable(args.vg, outputPos.plus(v4), inputPos.plus(v4), color, thickness, tension*1.0002, opacity, randomness);*/
+	/*if (poly) {
+        drawCable(args.vg, outputPos, inputPos, newc, thickness * 0.6, tension + 0.0412, opacity, randomness, poly);
+        drawCable(args.vg, outputPos, inputPos, newc, thickness * 0.6, tension + 0.02, opacity, randomness, poly);
+        drawCable(args.vg, outputPos, inputPos, newc, thickness * 0.7, tension - 0.015, opacity, randomness, poly);
+        drawCable(args.vg, outputPos, inputPos, newc, thickness * 0.7, tension - 0.0412, opacity, randomness, poly);
+	}*/
 
-
-        drawCable(args.vg, outputPos, inputPos, color, thickness, tension*0.912, opacity, randomness);
-        drawCable(args.vg, outputPos, inputPos, color, thickness, tension*0.924, opacity, randomness);
-        drawCable(args.vg, outputPos, inputPos, color, thickness, tension*1.012, opacity, randomness);
-        drawCable(args.vg, outputPos, inputPos, color, thickness, tension*1.002, opacity, randomness);
-	}
-
+    drawCable(args.vg, outputPos, inputPos, color, thickness,  tension, opacity, randomness, poly);
 }
 
 void CableWidget::drawPlugs(const DrawArgs& args) {
-	math::Vec outputPos = getOutputPos();
-	math::Vec inputPos = getInputPos();
+  /*  math::Vec outputPos = getOutputPos();
+    math::Vec inputPos = getInputPos();
 
-	// Draw plug if the cable is on top, or if the cable is incomplete
-	if (!isComplete() || APP->scene->rack->getTopCable(outputPort) == this) {
-		drawPlug(args.vg, outputPos, color);
-		if (isComplete()) {
-			// Draw plug light
-			nvgSave(args.vg);
-			nvgTranslate(args.vg, outputPos.x - 4, outputPos.y - 4);
-			outputPort->plugLight->draw(args);
-			nvgRestore(args.vg);
-		}
-	}
+    // Draw plug if the cable is on top, or if the cable is incomplete
+    if (!isComplete() || APP->scene->rack->getTopCable(outputPort) == this) {
+        drawPlug(args.vg, outputPos, color);
+        if (isComplete()) {
+            // Draw plug light
+            nvgSave(args.vg);
+            nvgTranslate(args.vg, outputPos.x - 4, outputPos.y - 4);
+            outputPort->plugLight->draw(args);
+            nvgRestore(args.vg);
+        }
+    }
 
-	if (!isComplete() || APP->scene->rack->getTopCable(inputPort) == this) {
-		drawPlug(args.vg, inputPos, color);
-		if (isComplete()) {
-			nvgSave(args.vg);
-			nvgTranslate(args.vg, inputPos.x - 4, inputPos.y - 4);
-			inputPort->plugLight->draw(args);
-			nvgRestore(args.vg);
-		}
-	}
+    if (!isComplete() || APP->scene->rack->getTopCable(inputPort) == this) {
+        drawPlug(args.vg, inputPos, color);
+        if (isComplete()) {
+            nvgSave(args.vg);
+            nvgTranslate(args.vg, inputPos.x - 4, inputPos.y - 4);
+            inputPort->plugLight->draw(args);
+            nvgRestore(args.vg);
+        }
+    }*/
+
+    math::Vec outputPos = getOutputPos();
+    math::Vec inputPos = getInputPos();
+
+    // Draw plug if the cable is on top, or if the cable is incomplete
+    if (!isComplete() || APP->scene->rack->getTopCable(outputPort) == this) {
+        drawPlug(args.vg, outputPos, color);
+        if (isComplete()) {
+            // Draw plug light
+            nvgSave(args.vg);
+            nvgTranslate(args.vg, outputPos.x - 4, outputPos.y - 4);
+            outputPort->plugLight->draw(args);
+            nvgRestore(args.vg);
+        }
+    }
+
+    if (!isComplete() || APP->scene->rack->getTopCable(inputPort) == this) {
+        drawPlug(args.vg, inputPos, color);
+        if (isComplete()) {
+            nvgSave(args.vg);
+            nvgTranslate(args.vg, inputPos.x - 4, inputPos.y - 4);
+            inputPort->plugLight->draw(args);
+            nvgRestore(args.vg);
+        }
+    }
 }
 
 
