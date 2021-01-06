@@ -13,7 +13,7 @@
     </defs>
     <g transform="matrix(0.92608,0,0,0.922578,116.296,-130.682)">
         <g id="pcb" transform="matrix(4.50413,0,0,1.16129,-125.624,-29.8395)">
-            <rect x="0.01" y="147.67" width="119.87" height="74.67" style="fill:rgb(38,42,51);"/>
+            <rect x="0.01" y="147.67" width="119.87" height="74.67" style="fill:rgb(0,30,91);"/>
         </g>
         <g id="section" transform="matrix(1,0,0,1,-82.3863,-13.2232)">
             <g id="lines" transform="matrix(0.445233,0,0,1,28.9673,0)">
