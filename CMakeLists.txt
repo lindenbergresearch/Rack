@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)  # enable C++11 standard
 set(CMAKE_CXX_FLAGS "-std=c++1y -stdlib=libc++ -Wall")
 
 
-include_directories(/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include)
+include_directories(/Applications/Xcode.app/Contents/Developer/usr/include)
 include_directories(./include)
 include_directories(./include/app)
 include_directories(./include/dsp)
@@ -39,6 +39,6 @@ file(GLOB SOURCE_FILES
         ./src/*.c ./src/*/*.c
         ./src/*/*/*.c ./src/*/*/*/*.c)
 
-add_executable(Rack ${SOURCE_FILES})
+add_executable(Rack ${SOURCE_FILES} include/timer.hpp src/blendish.cpp)
 
 target_compile_definitions(Rack PRIVATE ARCH_MAC=1)
