@@ -6,10 +6,10 @@ namespace ui {
 
 
 static const float SENSITIVITY = 0.001f;
-
+static const float SLIDER_MARGIN = 5;
 
 Slider::Slider() {
-	box.size.y = BND_WIDGET_HEIGHT;
+	box.size.y = BND_WIDGET_HEIGHT*0.9+SLIDER_MARGIN*2;
 }
 
 void Slider::draw(const DrawArgs& args) {
@@ -21,7 +21,7 @@ void Slider::draw(const DrawArgs& args) {
 
 	float progress = quantity ? quantity->getScaledValue() : 0.f;
 	std::string text = quantity ? quantity->getString() : "";
-	bndSlider(args.vg, 0.0, 0.0, box.size.x, box.size.y, BND_CORNER_NONE, state, progress, text.c_str(), NULL);
+	bndSlider(args.vg, 0.0, SLIDER_MARGIN, box.size.x, box.size.y-SLIDER_MARGIN*2, BND_CORNER_NONE, state, progress, text.c_str(), NULL, 13);
 }
 
 void Slider::onDragStart(const event::DragStart& e) {

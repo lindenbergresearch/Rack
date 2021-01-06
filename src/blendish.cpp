@@ -193,7 +193,7 @@ static BNDtheme bnd_theme = {
          {{{0,     0,     0,     1}}}, // color_outline
                 {{{0.675, 0.675, 0.675, 0.502}}}, // color_item
                 {{{0,     0,     0,     0}}}, // color_inner
-                {{{0.1961,  0.4666, 0.8823, 0.7}}}, // color_inner_selected
+                {{{0.1961,  0.2666, 0.9823, 0.8}}}, // color_inner_selected
                 BND_COLOR_TEXT_SELECTED, // color_text
                 {{{1,     1,     1,     1}}}, // color_text_selected
                 20, // shade_top
@@ -233,7 +233,7 @@ void bndSetIconImage(int image) {
 
 
 // the handle to the UI font
-static int bnd_font = 0;
+static int bnd_font = -1;
 
 
 void bndSetFont(int font) {
@@ -242,10 +242,10 @@ void bndSetFont(int font) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void bndLabel(NVGcontext *ctx, float x, float y, float w, float h, int iconid, const char *label, float fontSize) {
+void bndLabel(NVGcontext *ctx, float x, float y, float w, float h, int iconid, const char *label, float fontSize, BNDtextAlignment align) {
     bndIconLabelValue(ctx, x, y, w, h, iconid,
                       bnd_theme.regularTheme.textColor,
-                      iconid,
+                      align,
                       fontSize,
                       label,
                       NULL);
@@ -400,7 +400,7 @@ void bndNumberField(NVGcontext *ctx,
 
 void bndSlider(NVGcontext *ctx,
                float x, float y, float w, float h, int flags, BNDwidgetState state,
-               float progress, const char *label, const char *value) {
+               float progress, const char *label, const char *value, float fontsize) {
     float cr[4];
     NVGcolor shade_top, shade_down;
 
@@ -428,7 +428,7 @@ void bndSlider(NVGcontext *ctx,
                   bndTransparent(bnd_theme.sliderTheme.outlineColor));
     bndIconLabelValue(ctx, x, y, w, h, -1,
                       bndTextColor(&bnd_theme.sliderTheme, state), BND_CENTER,
-                      BND_LABEL_FONT_SIZE, label, value);
+                      fontsize, label, value);
 }
 
 
@@ -452,7 +452,8 @@ void bndScrollBar(NVGcontext *ctx,
 
     NVGcolor itemColor = bndOffsetColor(
             bnd_theme.scrollBarTheme.itemColor,
-            (state == BND_ACTIVE) ? BND_SCROLLBAR_ACTIVE_SHADE : 0);
+            (state == BND_ACTIVE) ? BND_SCROLLBAR_ACTIVE_SHADE : 0,
+            (state == BND_ACTIVE) ? 120 : 0);
 
     bndScrollHandleRect(&x, &y, &w, &h, offset, size);
 
@@ -470,13 +471,12 @@ void bndScrollBar(NVGcontext *ctx,
 }
 
 
-void bndMenuBackground(NVGcontext *ctx,
-                       float x, float y, float w, float h, int flags) {
+void bndMenuBackground(NVGcontext *ctx, float x, float y, float w, float h, int flags, BNDwidgetState state) {
     float cr[4];
     NVGcolor shade_top, shade_down;
 
     bndSelectCorners(cr, BND_MENU_RADIUS, flags);
-    bndInnerColors(&shade_top, &shade_down, &bnd_theme.menuTheme, BND_DEFAULT, 0);
+    bndInnerColors(&shade_top, &shade_down, &bnd_theme.menuTheme, state, 0);
     bndInnerBox(ctx, x - 5, y - 10, w + 10, h + 20 + 1, cr[0], cr[1], cr[2], cr[3], shade_top, shade_down);
     bndOutlineBox(ctx, x - 5, y - 10, w + 10, h + 20 + 1, cr[0], cr[1], cr[2], cr[3], bndTransparent(bnd_theme.menuTheme.outlineColor));
     bndDropShadow(ctx, x - 5, y - 10, w + 10, h + 20, BND_MENU_RADIUS, BND_SHADOW_FEATHER, BND_SHADOW_ALPHA);
@@ -802,14 +802,16 @@ NVGcolor bndTransparent(NVGcolor color) {
 }
 
 
-NVGcolor bndOffsetColor(NVGcolor color, int delta) {
+NVGcolor bndOffsetColor(NVGcolor color, int delta, int deltaa) {
     float offset = (float) delta / 255.0f;
+    float offseta = (float) deltaa / 255.0f;
+
     return delta ? (
             nvgRGBAf(
                     bnd_clamp(color.r + offset, 0, 1),
                     bnd_clamp(color.g + offset, 0, 1),
                     bnd_clamp(color.b + offset, 0, 1),
-                    color.a)
+                    bnd_clamp(color.a + offseta, 0, 1))
     ) : color;
 }
 
@@ -947,7 +949,7 @@ void bndOutlineBox(NVGcontext *ctx, float x, float y, float w, float h,
     nvgBeginPath(ctx);
     bndRoundedBox(ctx, x + 0.5f, y + 0.5f, w - 1, h - 2, cr0, cr1, cr2, cr3);
     nvgStrokeColor(ctx, color);
-    nvgStrokeWidth(ctx, 1);
+    nvgStrokeWidth(ctx, 2);
     nvgStroke(ctx);
 }
 

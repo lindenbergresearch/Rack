@@ -37,7 +37,7 @@ void MenuItem::draw(const DrawArgs& args) {
 
 void MenuItem::step() {
 	// Add 10 more pixels because measurements on high-DPI screens are sometimes too small for some reason
-	const float rightPadding = 10.0;
+	const float rightPadding = 40.0;
 	// HACK use APP->window->vg from the window.
 	// All this does is inspect the font, so it shouldn't modify APP->window->vg and should work when called from a widget::FramebufferWidget for example.
 	box.size.x = bndLabelWidth(APP->window->vg, -1, text.c_str()) + bndLabelWidth(APP->window->vg, -1, rightText.c_str()) + rightPadding;
