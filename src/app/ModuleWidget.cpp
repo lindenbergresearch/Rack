@@ -251,36 +251,53 @@ ModuleWidget::~ModuleWidget() {
 }
 
 void ModuleWidget::draw(const DrawArgs& args) {
-	nvgScissor(args.vg, RECT_ARGS(args.clipBox));
+	//nvgScissor(args.vg, RECT_ARGS(args.clipBox));
 
 	if (module && module->bypass) {
 		nvgGlobalAlpha(args.vg, 0.33);
 	}
 
-	Widget::draw(args);
+    Widget::draw(args);
 
-	// Power meter
+    // Power meter
 	if (module && settings::cpuMeter && !module->bypass) {
-		nvgBeginPath(args.vg);
-		nvgRect(args.vg,
-		        0, box.size.y - 35,
-		        65, 35);
-		nvgFillColor(args.vg, nvgRGBAf(0, 0, 0, 0.75));
-		nvgFill(args.vg);
+	    auto scale = 1;
+	    auto width = std::min(140., std::max(50., box.size.x * 0.8));
+        auto height = 45.;
+        auto x = box.size.x / 2. - width / 2.;
+        auto y = box.size.y - height - box.size.y / 20.;
+
+        nvgSave(args.vg);
+        nvgTranslate(args.vg, x + width / 2., y + height / 2.);
+        nvgScale(args.vg, scale, scale);
+        nvgTranslate(args.vg, -(x + width / 2.), -(y + height / 2.));
+
+        bndMenuBackground(args.vg, x, y, width, height, BND_CORNER_NONE, BND_ACTIVE);
 
 		float percent = module->cpuTime * APP->engine->getSampleRate() * 100;
 		float microseconds = module->cpuTime * 1e6f;
-		std::string cpuText = string::f("%.1f%%\n%.2f μs", percent, microseconds);
-		bndLabel(args.vg, 2.0, box.size.y - 34.0, INFINITY, INFINITY, -1, cpuText.c_str());
+		std::string cpuText = string::f("%-0003.2f%%\n%-01.2fμs", percent, microseconds);
+		bndLabel(args.vg, x, y, width, height, -1, cpuText.c_str(), 13, BND_CENTER);
 
-		float p = math::clamp(module->cpuTime / APP->engine->getSampleTime(), 0.f, 1.f);
+		float p = math::clamp(module->cpuTime / APP->engine->getSampleTime(), 0.f, 2.f);
+		auto color = nvgRGBAf(0, 0.7, 0, 1.);
+
+		if (p > 0.1) color = nvgRGBAf(p / 2, 0.7, 0, 1.);
+
 		nvgBeginPath(args.vg);
-		nvgRect(args.vg,
-		        0, (1.f - p) * box.size.y,
-		        5, p * box.size.y);
-		nvgFillColor(args.vg, nvgRGBAf(1, 0, 0, 1.0));
+        nvgRoundedRect(args.vg, x + 10., y + height - 10., (width - 20.), 6., 2.);
+        nvgFillColor(args.vg, nvgRGBAf(0.4, 0.4, 0.4, 1.));
+        nvgFill(args.vg);
+
+        nvgBeginPath(args.vg);
+        nvgRoundedRect(args.vg, x + 10., y + height - 10., p * (width - 20.), 6., 2.);
+		nvgFillColor(args.vg, color);
 		nvgFill(args.vg);
+
+		nvgRestore(args.vg);
 	}
+
+
 
 	// if (module) {
 	// 	nvgBeginPath(args.vg);

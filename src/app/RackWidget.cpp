@@ -349,7 +349,7 @@ void RackWidget::addModule(ModuleWidget* m) {
 	assert(m);
 	// Module must be 3U high and at least 1HP wide
 	assert(m->box.size.x >= RACK_GRID_WIDTH);
-	assert(m->box.size.y == RACK_GRID_HEIGHT);
+//	assert(m->box.size.y == RACK_GRID_HEIGHT);
 	moduleContainer->addChild(m);
 
 	if (m->module) {

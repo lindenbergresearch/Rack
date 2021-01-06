@@ -33,7 +33,7 @@ Scene::~Scene() {
 }
 
 void Scene::step() {
-	bool fullscreen = APP->window->isFullScreen();
+    bool fullscreen = APP->window->isFullScreen();
 	menuBar->visible = !fullscreen;
 	rackScroll->box.pos.y = menuBar->visible ? menuBar->box.size.y : 0;
 
@@ -55,7 +55,7 @@ void Scene::step() {
 }
 
 void Scene::draw(const DrawArgs& args) {
-	Widget::draw(args);
+    Widget::draw(args);
 }
 
 void Scene::onHoverKey(const event::HoverKey& e) {

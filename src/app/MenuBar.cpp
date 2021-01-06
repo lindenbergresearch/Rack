@@ -23,12 +23,15 @@
 namespace rack {
 namespace app {
 
+#define MENU_PADDING_TOP 13
 
 struct MenuButton : ui::Button {
-	void step() override {
+
+    void step() override {
 		box.size.x = bndLabelWidth(APP->window->vg, -1, text.c_str()) + 1.0;
 		Widget::step();
 	}
+
 	void draw(const DrawArgs& args) override {
 		BNDwidgetState state = BND_DEFAULT;
 		if (APP->event->hoveredWidget == this)
@@ -121,7 +124,7 @@ struct QuitItem : ui::MenuItem {
 struct FileButton : MenuButton {
 	void onAction(const event::Action& e) override {
 		ui::Menu* menu = createMenu();
-		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y));
+		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y+MENU_PADDING_TOP));
 		menu->box.size.x = box.size.x;
 
 		NewItem* newItem = new NewItem;
@@ -185,7 +188,7 @@ struct DisconnectCablesItem : ui::MenuItem {
 struct EditButton : MenuButton {
 	void onAction(const event::Action& e) override {
 		ui::Menu* menu = createMenu();
-		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y));
+		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y+MENU_PADDING_TOP));
 		menu->box.size.x = box.size.x;
 
 		UndoItem* undoItem = new UndoItem;
@@ -336,7 +339,7 @@ struct FullscreenItem : ui::MenuItem {
 struct ViewButton : MenuButton {
 	void onAction(const event::Action& e) override {
 		ui::Menu* menu = createMenu();
-		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y));
+		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y+MENU_PADDING_TOP));
 		menu->box.size.x = box.size.x;
 
 		ParamTooltipItem* paramTooltipItem = new ParamTooltipItem;
@@ -472,7 +475,7 @@ struct ThreadCountItem : ui::MenuItem {
 struct EngineButton : MenuButton {
 	void onAction(const event::Action& e) override {
 		ui::Menu* menu = createMenu();
-		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y));
+		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y+MENU_PADDING_TOP));
 		menu->box.size.x = box.size.x;
 
 		CpuMeterItem* cpuMeterItem = new CpuMeterItem;
@@ -720,7 +723,7 @@ struct LibraryButton : MenuButton {
 
 	void onAction(const event::Action& e) override {
 		ui::Menu* menu = createMenu<LibraryMenu>();
-		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y));
+		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y+MENU_PADDING_TOP));
 		menu->box.size.x = box.size.x;
 	}
 
@@ -783,7 +786,7 @@ struct HelpButton : MenuButton {
 
 	void onAction(const event::Action& e) override {
 		ui::Menu* menu = createMenu();
-		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y));
+		menu->box.pos = getAbsoluteOffset(math::Vec(0, box.size.y+MENU_PADDING_TOP));
 		menu->box.size.x = box.size.x;
 
 		/*if (updater::isUpdateAvailable()) {
@@ -839,11 +842,11 @@ void MenuBar::draw(const DrawArgs& args) {
 MenuBar* createMenuBar() {
 	MenuBar* menuBar = new MenuBar;
 
-	const float margin = 5;
+	const float margin = 0;
 	menuBar->box.size.y = BND_WIDGET_HEIGHT + 2 * margin;
 
 	ui::SequentialLayout* layout = new ui::SequentialLayout;
-	layout->box.pos = math::Vec(margin, margin);
+	layout->box.pos = math::Vec(7, 7);
 	layout->spacing = math::Vec(0, 0);
 	menuBar->addChild(layout);
 
