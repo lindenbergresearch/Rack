@@ -13,7 +13,7 @@ static FILE *outputFile = nullptr;
 static FILE *outputConsole = nullptr;
 
 static std::mutex logMutex;
-static Level logLevel = TRACE_LEVEL;
+static Level logLevel = DEBUG_LEVEL;
 
 
 void init() {
@@ -59,7 +59,7 @@ static void logVa(Level level, const char *filename, int line, const char *funct
 
     if (outputConsole) {
         fprintf(outputConsole, "\x1B[%dm", levelColors[level]);
-        fprintf(outputConsole, "[%-6.5f] <%s->%s:%d> %s ", (double) duration / 10e8, filename, funct, line, levelLabels[level]);
+        fprintf(outputConsole, "[%0006.3f %s->%s:%d] %s ", (double) duration / 10e8, filename, funct, line, levelLabels[level]);
         vfprintf(outputConsole, format, args);
         fprintf(outputConsole, "\x1B[0m");
         fprintf(outputConsole, "\n");
