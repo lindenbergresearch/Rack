@@ -236,6 +236,8 @@ void Widget::draw(const DrawArgs &args) {
         auto x = box.size.x / 2. - width / 2.;
         auto y = box.size.y / 15. + 5;
 
+        if (sc) y = 20;
+
         nvgSave(args.vg);
         nvgTranslate(args.vg, x + width / 2., y + height / 2.);
         nvgScale(args.vg, scale, scale);
@@ -243,9 +245,13 @@ void Widget::draw(const DrawArgs &args) {
         bndMenuBackground(args.vg, x, y, width, height, BND_CORNER_NONE, BND_ACTIVE);
         nvgBeginPath(args.vg);
         // update cpu % every second
+
         std::string cpuText = string::f("S %002.2fms %002.1f%%\nR %002.2fms %002.1f%%", stime->elapsed * 10e3, stime->percent(), rtime->elapsed * 10e3, rtime->percent());
+        std::string cpuTextSC = string::f("SCENE\nStep-Time %002.2fms %002.1f%%\nRender-Time %002.2fms %002.1f%%", stime->elapsed * 10e3, stime->percent(), rtime->elapsed * 10e3, rtime->percent());
+
+
        ///////////////////////////// bndLabel(args.vg, x-25, y, width, height, -1, "S\nR", 13, BND_CENTER);
-        bndLabel(args.vg, x, y, width, height, -1, cpuText.c_str(), 13, BND_CENTER);
+        bndLabel(args.vg, x, y, width, height, -1, sc ? cpuTextSC.c_str() : cpuText.c_str(), 13, BND_CENTER);
         nvgRestore(args.vg);
     }
 }
