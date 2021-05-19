@@ -35,7 +35,7 @@ void RackRail::draw(const DrawArgs &args) {
     // Background color
     nvgBeginPath(args.vg);
     nvgRect(args.vg, 0.0, 0.0, box.size.x, box.size.y);
-    nvgFillColor(args.vg, nvgRGBAf(0.3, 0.3, 0.3, 1.0));
+    nvgFillColor(args.vg, nvgRGBAf(0.19, 0.18, 0.19, 1.0));
     nvgFill(args.vg);
 
     auto shadowColor = nvgRGBAf(0.0, 0, 0.0, 0.12);
