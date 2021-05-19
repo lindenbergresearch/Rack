@@ -27,6 +27,7 @@ include_directories(./ext/nanovg/src)
 file(GLOB SOURCE_FILES
         ./plugins/Fundamental/src/*.cpp
         ./plugins/BogaudioModules/src/*.cpp
+        ./plugins/Befaco/src/*.cpp
         ./plugins/BogaudioModules/src/dsp/*.cpp
         ./plugins/ImpromptuModular/src/*.cpp
         ./plugins/ImpromptuModular/src/*/*.cpp
